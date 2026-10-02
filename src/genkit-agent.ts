@@ -15,8 +15,12 @@ const ai = genkit({
   plugins: [googleAI({ apiKey: process.env.GEMINI_API_KEY })]
 });
 
-// Resolve Gemini model: targets the latest gemini-3.8-flash model
-const selectedModel = typeof gemini === 'function' ? gemini('gemini-3.8-flash') : 'googleai/gemini-3.8-flash';
+// Candidate models with automated fallback to guarantee zero 503 high-demand disruption
+const CANDIDATE_MODELS = [
+  'googleai/gemini-3.5-flash',
+  'googleai/gemini-3.6-flash',
+  'googleai/gemini-3.8-flash'
+];
 
 // 2. Register Mojulo 3.0.0 tools into Genkit
 const mintSolidTool = ai.defineTool(
@@ -126,14 +130,22 @@ Instructions:
 4. Upload both the recipe and compiled file to Google Drive using google_drive_sync.
 `;
 
-    const response = await ai.generate({
-      model: selectedModel,
-      prompt,
-      tools: [mintSolidTool, measureSolidTool, exportModelTool, syncToDriveTool],
-      config: { temperature: 0.2 }
-    });
-
-    return response.text;
+    let lastError: any = null;
+    for (const modelCandidate of CANDIDATE_MODELS) {
+      try {
+        const response = await ai.generate({
+          model: modelCandidate,
+          prompt,
+          tools: [mintSolidTool, measureSolidTool, exportModelTool, syncToDriveTool],
+          config: { temperature: 0.2 }
+        });
+        return response.text;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[Genkit Model Notice] ${modelCandidate} returned: ${err.message}. Retrying with next available model...`);
+      }
+    }
+    throw lastError;
   }
 );
 
