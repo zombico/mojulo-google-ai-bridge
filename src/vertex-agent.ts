@@ -58,12 +58,12 @@ const exportModelDecl: FunctionDeclaration = {
   }
 };
 
-// 3. Multi-turn Agent Loop with Gemini 2.5
+// 3. Multi-turn Agent Loop with Gemini 3.8
 export async function runVertexAgent(promptText: string) {
   const tools = [{ functionDeclarations: [mintSolidDecl, measureSolidDecl, exportModelDecl] }];
 
   const chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
     config: {
       systemInstruction: 'You are an expert CAD engineer and 3D compiler agent. You use Mojulo tools to model exact parametric geometry.',
       tools

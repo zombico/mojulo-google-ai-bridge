@@ -15,8 +15,8 @@ const ai = genkit({
   plugins: [googleAI({ apiKey: process.env.GEMINI_API_KEY })]
 });
 
-// Resolve Gemini model: dynamically targets gemini-2.5-flash with fallback to gemini15Flash
-const selectedModel = typeof gemini === 'function' ? gemini('gemini-2.5-flash') : (gemini15Flash || 'googleai/gemini-2.5-flash');
+// Resolve Gemini model: targets the latest gemini-3.8-flash model
+const selectedModel = typeof gemini === 'function' ? gemini('gemini-3.8-flash') : 'googleai/gemini-3.8-flash';
 
 // 2. Register Mojulo 3.0.0 tools into Genkit
 const mintSolidTool = ai.defineTool(
