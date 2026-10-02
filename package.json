@@ -8,6 +8,9 @@
     "dev:genkit": "tsx src/genkit-agent.ts",
     "dev:vertex": "tsx src/vertex-agent.ts",
     "dev:bridge": "tsx src/mcp-server-bridge.ts",
+    "check:mojulo": "npx -y mojulo --version",
+    "test": "npm run check:mojulo && tsc --noEmit",
+    "lint": "tsc --noEmit",
     "build": "tsc",
     "start": "node dist/mcp-server-bridge.js"
   },
