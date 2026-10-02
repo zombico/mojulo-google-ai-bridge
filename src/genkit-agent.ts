@@ -3,7 +3,7 @@
  * Run: npx tsx src/genkit-agent.ts
  */
 import { genkit, z } from 'genkit';
-import { googleAI, gemini25Flash } from '@genkit-ai/googleai';
+import { googleAI, gemini15Flash, gemini } from '@genkit-ai/googleai';
 import { mojulo } from './mojulo-client.js';
 import { driveOrchestrator } from './drive-orchestrator.js';
 import dotenv from 'dotenv';
@@ -14,6 +14,9 @@ dotenv.config();
 const ai = genkit({
   plugins: [googleAI({ apiKey: process.env.GEMINI_API_KEY })]
 });
+
+// Resolve Gemini model: dynamically targets gemini-2.5-flash with fallback to gemini15Flash
+const selectedModel = typeof gemini === 'function' ? gemini('gemini-2.5-flash') : (gemini15Flash || 'googleai/gemini-2.5-flash');
 
 // 2. Register Mojulo 3.0.0 tools into Genkit
 const mintSolidTool = ai.defineTool(
@@ -124,7 +127,7 @@ Instructions:
 `;
 
     const response = await ai.generate({
-      model: gemini25Flash,
+      model: selectedModel,
       prompt,
       tools: [mintSolidTool, measureSolidTool, exportModelTool, syncToDriveTool],
       config: { temperature: 0.2 }
